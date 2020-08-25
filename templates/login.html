@@ -1,10 +1,37 @@
-<!DOCTYPE html>
-<html lang="en" dir="ltr">
-  <head>
-    <meta charset="utf-8">
-    <title></title>
-  </head>
-  <body>
-    <p>This is the login page.</p>
-  </body>
-</html>
+{% extends "layout.html" %}
+{% block content %}
+<form method="POST" action="">
+  {{ form.hidden_tag() }}
+  <fieldset>
+    <div class="username">
+    {{ form.username.label() }}
+    {% if form.username.errors %}
+      {{ form.username() }}
+      <div>
+      {% for error in form.username.errors %}
+        <span>{{ error }}</span>
+      {% endfor %}
+      </div>
+    {% else %}
+      {{ form.username() }}
+    {% endif %}
+    </div>
+    <div class="password">
+      {{ form.password.label }}
+      {% if form.password.errors %}
+        {{ form.password() }}
+        <div>
+        {% for error in form.password.errors %}
+          <span>{{ error }}</span>
+        {% endfor %}
+        </div>
+      {% else %}
+        {{ form.password() }}
+      {% endif %}
+      </div>
+      <div class="button">
+        {{ form.submit() }}
+      </div>
+  </fieldset>
+  </form>
+{% endblock content %}
