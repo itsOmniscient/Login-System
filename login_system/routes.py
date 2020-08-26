@@ -1,8 +1,6 @@
+from login_system import app
 from flask import Flask, render_template, url_for, redirect
-from forms import RegistrationForm, LoginForm
-
-app = Flask(__name__)
-app.config['SECRET_KEY'] = '65d716bc87f6e63d1c2ad0953a77056d'
+from login_system.forms import RegistrationForm, LoginForm
 
 @app.route('/')
 @app.route('/home')
@@ -22,6 +20,3 @@ def login_route():
     if form.validate_on_submit():
         return redirect(url_for('home_route'))
     return render_template('login.html', form=form)
-
-if __name__ == '__main__':
-    app.run(debug=True)
