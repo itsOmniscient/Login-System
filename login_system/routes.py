@@ -2,7 +2,7 @@ from login_system import app, db, bcrypt
 from flask import Flask, render_template, url_for, redirect, flash
 from login_system.forms import RegistrationForm, LoginForm
 from login_system.models import User
-from flask_login import login_user
+from flask_login import login_user, login_required, logout_user
 
 @app.route('/')
 @app.route('/home')
@@ -32,3 +32,9 @@ def login_route():
             wrong = 'Please check your username or password.'
             return render_template('login.html', form=form, wrong=wrong)
     return render_template('login.html', form=form)
+
+@app.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('home_route'))
