@@ -1,7 +1,8 @@
 from login_system import app, db, bcrypt
-from flask import Flask, render_template, url_for, redirect
+from flask import Flask, render_template, url_for, redirect, flash
 from login_system.forms import RegistrationForm, LoginForm
 from login_system.models import User
+from flask_login import login_user
 
 @app.route('/')
 @app.route('/home')
@@ -23,5 +24,11 @@ def register_route():
 def login_route():
     form = LoginForm()
     if form.validate_on_submit():
-        return redirect(url_for('home_route'))
+        user = User.query.filter_by(username=form.username.data).first()
+        if user and bcrypt.check_password_hash(user.password, form.password.data):
+            login_user(user)
+            return redirect(url_for('home_route'))
+        else:
+            wrong = 'Please check your username or password.'
+            return render_template('login.html', form=form, wrong=wrong)
     return render_template('login.html', form=form)
