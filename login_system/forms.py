@@ -12,10 +12,6 @@ class RegistrationForm(FlaskForm):
     pass_validate = PasswordField('Please enter your password again', validators=[DataRequired(), EqualTo('password', message="Password doesn't match.")])
     submit = SubmitField()
 
-    def validate_field(self, field):
-        if True:
-            raise ValidationError('Something')
-
     def validate_username(self, username):
         user = User.query.filter_by(username = username.data).first()
         if user:
@@ -30,3 +26,17 @@ class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired(), Length(min=4, max=20, message="Enter minimum 4 and maximum 20 characters.")])
     password = PasswordField('Password', validators=[DataRequired()])
     submit = SubmitField()
+
+class PasswordReset(FlaskForm):
+    email = EmailField('Email', validators=[DataRequired(), Email(message="Please enter valid e-mail address.")])
+    submit = SubmitField('Password Reset')
+
+    def validate_email(self, email):
+        user = User.query.filter_by(email = email.data).first()
+        if user is None:
+            raise ValidationError('Please enter valid e-mail address.')
+
+class NewPassword(FlaskForm):
+    password = PasswordField('Password', validators=[DataRequired()])
+    pass_validate = PasswordField('Please enter your password again', validators=[DataRequired(), EqualTo('password', message="Password doesn't match.")])
+    submit = SubmitField('Confirm')

@@ -5,6 +5,14 @@
     <title></title>
   </head>
   <body>
+    <a href="/home">Home</a>
+    <a href="/register">Register</a>
+    {% if current_user.is_authenticated %}
+      <a href="/logout">Logout</a>
+    {% else %}
+      <a href="/login">Login</a>
+    {% endif %}
+    <a href="/reset">Reset Password</a>
     {% block content %}
     {% endblock content %}
   </body>
