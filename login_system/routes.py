@@ -1,8 +1,9 @@
-from login_system import app, db, bcrypt
+from login_system import app, db, bcrypt, mail
 from flask import Flask, render_template, url_for, redirect, flash
 from login_system.forms import RegistrationForm, LoginForm, PasswordReset, NewPassword
 from login_system.models import User
 from flask_login import login_user, login_required, logout_user, current_user
+from flask_mail import Message
 
 @app.route('/')
 @app.route('/home')
@@ -11,6 +12,8 @@ def home_route():
 
 @app.route('/register', methods=('GET', 'POST'))
 def register_route():
+    if current_user.is_authenticated:
+        return redirect(url_for('home_route'))
     form = RegistrationForm()
     if form.validate_on_submit():
         pass_hash = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
@@ -39,6 +42,12 @@ def logout():
     logout_user()
     return redirect(url_for('home_route'))
 
+def send_reset_email(user):
+    token = user.get_reset_token()
+    msg = Message('Password Reset', sender='localhost@dontreply.com', recipients=[user.email])
+    msg.body = f'''Password reset link: {url_for('new_password_route', token=token, _external=True)}'''
+    mail.send(msg)
+
 @app.route('/reset', methods=['GET', 'POST'])
 def password_reset_route():
     if current_user.is_authenticated:
@@ -46,6 +55,7 @@ def password_reset_route():
     form = PasswordReset()
     if form.validate_on_submit():
         user = User.query.filter_by(email = form.email.data).first()
+        send_reset_email(user)
         return redirect(url_for('home_route'))
     return render_template('passwordreset.html', form=form)
 
@@ -58,5 +68,8 @@ def new_password_route(token):
         return redirect(url_for('password_reset_route'))
     form = NewPassword()
     if form.validate_on_submit():
+        pass_hash = bcrypt.generate_password_hash(form.password.data)
+        user.password = pass_hash
+        db.session.commit()
         return redirect(url_for('home_route'))
     return render_template('newpassword.html', form=form)
